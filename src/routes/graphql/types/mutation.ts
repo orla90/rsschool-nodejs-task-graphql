@@ -3,23 +3,23 @@ import {
   UserType,
   ChangeUserInputType,
   CreateUserInputType,
-} from './types/user.js';
+} from './user.js';
 import {
   ChangePostInputType,
   CreatePostInputType,
   PostType,
-} from './types/post.js';
+} from './post.js';
 import {
   ProfileType,
   CreateProfileInputType,
   ChangeProfileInputType,
-} from './types/profile.js';
-import { UUIDType } from './types/uuid.js';
-import { changeProfileByIdSchema, createProfileSchema } from '../profiles/schemas.js';
+} from './profile.js';
+import { UUIDType } from './uuid.js';
+import { changeProfileByIdSchema, createProfileSchema } from '../../profiles/schemas.js';
 import { Static } from '@sinclair/typebox';
-import { changePostByIdSchema, createPostSchema } from '../posts/schemas.js';
-import { changeUserByIdSchema, createUserSchema } from '../users/schemas.js';
-import { Context } from './index.js';
+import { changePostByIdSchema, createPostSchema } from '../../posts/schemas.js';
+import { changeUserByIdSchema, createUserSchema } from '../../users/schemas.js';
+import { Context } from '../index.js';
 
 export const mutations = new GraphQLObjectType({
   name: 'Mutations',
@@ -30,8 +30,8 @@ export const mutations = new GraphQLObjectType({
         dto: { type: CreateUserInputType },
       },
       resolve: async (
-        _parent, 
-        { dto }: { dto: Static<(typeof createUserSchema)['body']> }, 
+        _parent,
+        { dto }: { dto: Static<(typeof createUserSchema)['body']> },
         context: Context
       ) => {
         return context.prisma.user.create({ data: dto });
@@ -44,12 +44,12 @@ export const mutations = new GraphQLObjectType({
         dto: { type: ChangeUserInputType },
       },
       resolve: async (
-        _parent, 
-        { dto, id }: { dto: Static<(typeof changeUserByIdSchema)['body']>; id: string }, 
+        _parent,
+        { dto, id }: { dto: Static<(typeof changeUserByIdSchema)['body']>; id: string },
         context: Context
       ) => {
-        return context.prisma.user.update({ 
-          where: { id }, data: dto 
+        return context.prisma.user.update({
+          where: { id }, data: dto
         });
       },
     },
@@ -59,20 +59,20 @@ export const mutations = new GraphQLObjectType({
         id: { type: UUIDType },
       },
       resolve: async (
-        _parent, 
-        { id }: { id: string }, 
+        _parent,
+        { id }: { id: string },
         context: Context
       ) => {
         try {
-          await context.prisma.user.delete({ 
-            where: { id } 
+          await context.prisma.user.delete({
+            where: { id }
           });
           return true;
         } catch {
           return false;
         }
       },
-    },  
+    },
     subscribeTo: {
       type: GraphQLString,
       args: {
@@ -128,10 +128,10 @@ export const mutations = new GraphQLObjectType({
     createPost: {
       type: PostType,
       args: {
-        dto: { type:CreatePostInputType },
+        dto: { type: CreatePostInputType },
       },
       resolve: async (
-        _parent, { dto }: { dto: Static<(typeof createPostSchema)['body']> }, 
+        _parent, { dto }: { dto: Static<(typeof createPostSchema)['body']> },
         context: Context
       ) => {
         return context.prisma.post.create({ data: dto });
@@ -144,12 +144,12 @@ export const mutations = new GraphQLObjectType({
         dto: { type: ChangePostInputType },
       },
       resolve: async (
-        _parent, 
-        { dto, id }: { dto: Static<(typeof changePostByIdSchema)['body']>; id: string }, 
+        _parent,
+        { dto, id }: { dto: Static<(typeof changePostByIdSchema)['body']>; id: string },
         context: Context
       ) => {
-        return context.prisma.post.update({ 
-          where: { id }, data: dto 
+        return context.prisma.post.update({
+          where: { id }, data: dto
         });
       },
     },
@@ -159,12 +159,12 @@ export const mutations = new GraphQLObjectType({
         id: { type: UUIDType },
       },
       resolve: async (
-        _parent, { id }: { id: string }, 
+        _parent, { id }: { id: string },
         context: Context
       ) => {
         try {
-          await context.prisma.post.delete({ 
-            where: { id } 
+          await context.prisma.post.delete({
+            where: { id }
           });
           return true;
         } catch (error) {
@@ -178,8 +178,8 @@ export const mutations = new GraphQLObjectType({
         dto: { type: CreateProfileInputType },
       },
       resolve: async (
-        _parent, 
-        { dto }: { dto: Static<(typeof createProfileSchema)['body']> }, 
+        _parent,
+        { dto }: { dto: Static<(typeof createProfileSchema)['body']> },
         context: Context
       ) => {
         return context.prisma.profile.create({ data: dto });
@@ -196,8 +196,8 @@ export const mutations = new GraphQLObjectType({
         { dto, id }: { dto: Static<(typeof changeProfileByIdSchema)['body']>; id: string },
         context,
       ) => {
-        return context.prisma.profile.update({ 
-          where: { id }, data: dto 
+        return context.prisma.profile.update({
+          where: { id }, data: dto
         });
       },
     },
@@ -207,13 +207,14 @@ export const mutations = new GraphQLObjectType({
         id: { type: UUIDType },
       },
       resolve: async (
-        _parent, 
-        { id }: { id: string }, 
+        _parent,
+        { id }: { id: string },
         context: Context
       ) => {
         try {
-          await context.prisma.profile.delete({ 
-            where: { id } });
+          await context.prisma.profile.delete({
+            where: { id }
+          });
           return true;
         } catch (error) {
           return false;

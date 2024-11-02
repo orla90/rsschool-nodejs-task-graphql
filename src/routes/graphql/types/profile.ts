@@ -1,30 +1,52 @@
-import { GraphQLBoolean, GraphQLInt, GraphQLNonNull, GraphQLObjectType } from 'graphql';
+import { GraphQLBoolean, GraphQLInputObjectType, GraphQLInt, GraphQLObjectType } from 'graphql';
 import { UUIDType } from './uuid.js';
 import { UserType } from './user.js';
-import { MemberType } from './member.js';
-import { Context } from '../gqlSchema.js';
+import { MemberType, MemberTypeIdEnum } from './member.js';
+import { Static } from '@sinclair/typebox';
+import { profileSchema } from '../../profiles/schemas.js';
+import { Context } from '../index.js';
 
-export const ProfileType: GraphQLObjectType = new GraphQLObjectType({
+export const ProfileType: GraphQLObjectType = new GraphQLObjectType<Static<typeof profileSchema>, Context>({
   name: 'Profile',
   fields: () => ({
     id: { type: UUIDType },
-    isMale: { type: new GraphQLNonNull(GraphQLBoolean) },
-    yearOfBirth: { type: new GraphQLNonNull(GraphQLInt) },
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLInt },
+    userId: { type: UUIDType },
+    memberTypeId: { type: UUIDType },
+
     user: {
       type: UserType,
       resolve: async (profile, _args, context: Context) => {
-        return context.db.user.findUnique({ where: { id: profile.userId } });
+        return context.prisma.user.findUnique({ where: { id: profile.userId } });
       },
     },
-    userId: { type: UUIDType },
     memberType: {
       type: MemberType,
       resolve: async (profile, _args, context: Context) => {
-        return context.db.memberType.findUnique({
+        return context.prisma.memberType.findUnique({
           where: { id: profile.memberTypeId },
         });
       },
     },
-    memberTypeId: { type: UUIDType },
+  }),
+});
+
+export const CreateProfileInputType = new GraphQLInputObjectType({
+  name: 'CreateProfileInput',
+  fields: () => ({
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLInt },
+    userId: { type: UUIDType },
+    memberTypeId: { type: MemberTypeIdEnum },
+  }),
+});
+
+export const ChangeProfileInputType = new GraphQLInputObjectType({
+  name: 'ChangeProfileInput',
+  fields: () => ({
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLInt },
+    memberTypeId: { type: MemberTypeIdEnum },
   }),
 });

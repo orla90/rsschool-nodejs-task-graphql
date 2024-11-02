@@ -4,13 +4,16 @@ import {
   GraphQLString,
   GraphQLFloat,
   GraphQLList,
+  GraphQLInputObjectType,
 } from 'graphql';
 import { UUIDType } from './uuid.js';
 import { PostType } from './post.js';
 import { ProfileType } from './profile.js';
-import { Context } from '../gqlSchema.js';
+import { userSchema } from '../../users/schemas.js';
+import { Static } from '@sinclair/typebox';
+import { Context } from '../index.js';
 
-export const UserType: GraphQLObjectType = new GraphQLObjectType({
+export const UserType: GraphQLObjectType = new GraphQLObjectType<Static<typeof userSchema>, Context>({
   name: 'User',
   fields: () => ({
     id: { type: UUIDType },
@@ -20,19 +23,19 @@ export const UserType: GraphQLObjectType = new GraphQLObjectType({
     posts: {
       type: new GraphQLList(PostType),
       resolve: async (user, _args, context: Context) => {
-        return context.db.post.findMany({ where: { authorId: user.id } });
+        return context.prisma.post.findMany({ where: { authorId: user.id } });
       },
     },
     profile: {
       type: ProfileType,
       resolve: async (user, _args, context: Context) => {
-        return context.db.profile.findUnique({ where: { userId: user.id } });
+        return context.prisma.profile.findUnique({ where: { userId: user.id } });
       },
     },
     userSubscribedTo: {
       type: new GraphQLList(UserType),
       resolve: async (user, _args, context: Context) => {
-        return context.db.user.findMany({
+        return context.prisma.user.findMany({
           where: {
             subscribedToUser: {
               some: {
@@ -46,7 +49,7 @@ export const UserType: GraphQLObjectType = new GraphQLObjectType({
     subscribedToUser: {
       type: new GraphQLList(UserType),
       resolve: async (user, _args, context: Context) => {
-        return context.db.user.findMany({
+        return (context.prisma.user).findMany({
           where: {
             userSubscribedTo: {
               some: {
@@ -57,5 +60,22 @@ export const UserType: GraphQLObjectType = new GraphQLObjectType({
         });
       },
     },
+  }),
+});
+
+
+export const CreateUserInputType = new GraphQLInputObjectType({
+  name: 'CreateUserInput',
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+  }),
+});
+
+export const ChangeUserInputType = new GraphQLInputObjectType({
+  name: 'ChangeUserInput',
+  fields: () => ({
+    name: { type: GraphQLString },
+    balance: { type: GraphQLFloat },
   }),
 });

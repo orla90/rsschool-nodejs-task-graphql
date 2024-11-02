@@ -1,4 +1,4 @@
-import { GraphQLBoolean, GraphQLObjectType } from 'graphql';
+import { GraphQLBoolean, GraphQLObjectType, GraphQLString } from 'graphql';
 import {
   UserType,
   ChangeUserInputType,
@@ -72,9 +72,9 @@ export const mutations = new GraphQLObjectType({
           return false;
         }
       },
-    },
+    },  
     subscribeTo: {
-      type: UserType,
+      type: GraphQLString,
       args: {
         userId: { type: UUIDType },
         authorId: { type: UUIDType },
@@ -96,11 +96,11 @@ export const mutations = new GraphQLObjectType({
             },
           },
         });
-        return true;
+        return userId;
       },
     },
     unsubscribeFrom: {
-      type: GraphQLBoolean,
+      type: GraphQLString,
       args: {
         userId: { type: UUIDType },
         authorId: { type: UUIDType },
@@ -119,7 +119,7 @@ export const mutations = new GraphQLObjectType({
               },
             },
           });
-          return true;
+          return authorId;
         } catch (error) {
           return false;
         }
